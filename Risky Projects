@@ -1,0 +1,35 @@
+with
+    projects as (
+        select
+            ep.*,
+            p.title as title,
+            p.budget as budget,
+            p.start_date as start_date,
+            p.end_date as end_date,
+            datediff (p.end_date, p.start_date) as duration
+        from
+            linkedin_emp_projects as ep
+            left join linkedin_projects as p on ep.project_id = p.id
+    ),
+    empProjectsSalaries as (
+        select
+            pr.*,
+            emp.first_name as first_name,
+            emp.last_name as last_name,
+            emp.salary as salary,
+            emp.salary * (pr.duration / 365) as pro_rated_amount
+        from
+            projects as pr
+            left join linkedin_employees as emp on pr.emp_id = emp.id
+    )
+select
+    title,
+    budget,
+    ceiling(sum(pro_rated_amount))
+from
+    empProjectsSalaries
+group by
+    title,
+    budget
+having
+    budget < sum(pro_rated_amount)

@@ -1,0 +1,11 @@
+select
+    games,
+    count(distinct (id)) as no_athletes
+from
+    olympics_athletes_events
+group by
+    games
+order by
+    count(distinct (id)) desc
+limit
+    1

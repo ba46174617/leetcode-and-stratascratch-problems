@@ -1,0 +1,11 @@
+select
+    cust_id,
+    sum(total_order_cost) as revenue
+from
+    orders
+where
+    month (order_date) = 3
+group by
+    cust_id
+order by
+    sum(total_order_cost) desc

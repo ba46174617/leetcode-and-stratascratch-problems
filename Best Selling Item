@@ -1,0 +1,34 @@
+with
+    a as (
+        select
+            description,
+            sum(unitprice * quantity) as total_paid,
+            month (invoicedate) as m
+        from
+            online_retail
+        group by
+            month (invoicedate),
+            description
+        order by
+            m asc
+    ),
+    b as (
+        select
+            *,
+            row_number() over (
+                partition by
+                    m
+                order by
+                    total_paid desc
+            ) as rn
+        from
+            a
+    )
+select
+    m,
+    description,
+    total_paid
+from
+    b
+where
+    rn = 1

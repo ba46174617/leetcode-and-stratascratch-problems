@@ -1,0 +1,27 @@
+with
+    transposed_dates as (
+        select
+            user_id,
+            row_number() over (
+                partition by
+                    user_id
+                order by
+                    created_at
+            ) as rn,
+            lag (created_at, 1, 0) over (
+                partition by
+                    user_id
+                order by
+                    created_at
+            ) as created_at_prev,
+            created_at as created_at_next
+        from
+            amazon_transactions
+    )
+select distinct
+    (user_id)
+from
+    transposed_dates
+where
+    rn = 2
+    and datediff (created_at_next, created_at_prev) between 1 and 7

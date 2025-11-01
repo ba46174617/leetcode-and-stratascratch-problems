@@ -1,0 +1,17 @@
+select
+    first_name,
+    target
+from
+    salesforce_employees
+where
+    target = (
+        select
+            max(target)
+        from
+            salesforce_employees
+        where
+            manager_id = 13
+        group by
+            manager_id
+    )
+    and manager_id = 13

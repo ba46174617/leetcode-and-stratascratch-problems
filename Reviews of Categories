@@ -1,0 +1,40 @@
+with recursive
+    beginning as (
+        select
+            review_count,
+            categories
+        from
+            yelp_business
+    ),
+    ind_categories as (
+        select
+            review_count,
+            substring_index (categories, ';', 1) as ind_category,
+            substring(
+                categories,
+                length (substring_index (categories, ';', 1)) + 2
+            ) as remaining_categories
+        from
+            beginning
+        union all
+        select
+            review_count,
+            substring_index (remaining_categories, ';', 1) as ind_category,
+            substring(
+                remaining_categories,
+                length (substring_index (remaining_categories, ';', 1)) + 2
+            ) as remaining_categories
+        from
+            ind_categories
+        where
+            remaining_categories <> ''
+    )
+select
+    ind_category,
+    sum(review_count)
+from
+    ind_categories
+group by
+    ind_category
+order by
+    sum(review_count) desc

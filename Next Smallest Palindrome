@@ -1,0 +1,24 @@
+def string_outputs(n):
+    n_string = str(n)
+    first_half, last_half, last_half_reversed = '', '', ''
+    if len(n_string) % 2 == 0:
+        first_half += n_string[:int(len(n_string)/2)]
+        last_half += n_string[int(len(n_string)/2):]
+        last_half_reversed += last_half[::-1]
+    else:
+        first_half += n_string[:int((len(n_string)-1)/2)]
+        last_half += n_string[int((len(n_string)+1)/2):]
+        last_half_reversed += last_half[::-1]
+    return(first_half, last_half, last_half_reversed, first_half == last_half_reversed)
+    
+def next_palindrome(n):
+    """
+    :type n: int
+    :rtype: int
+    """
+    if string_outputs(n)[3] == True:
+        n += 1
+    fin_num = []
+    while string_outputs(n)[3] == False:
+        n += 1
+    return(n)

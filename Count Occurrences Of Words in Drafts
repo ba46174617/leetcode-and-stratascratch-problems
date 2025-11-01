@@ -1,0 +1,38 @@
+with recursive
+    stripped_table as (
+        select
+            filename,
+            regexp_replace (lower(contents), '[[:punct:]]', '') as stripped_contents
+        from
+            google_file_store
+    ),
+    separated_string (filename, individual_word, next_string) as (
+        select
+            filename,
+            substring_index (stripped_contents, ' ', 1) as individual_word,
+            substring(
+                stripped_contents,
+                length (substring_index (stripped_contents, ' ', 1)) + 2
+            ) as next_string
+        from
+            stripped_table
+        union all
+        select
+            filename,
+            substring_index (next_string, ' ', 1) as individual_word,
+            substring(
+                next_string,
+                length (substring_index (next_string, ' ', 1)) + 2
+            ) as next_string
+        from
+            separated_string
+        where
+            next_string <> ''
+    )
+select
+    individual_word as word,
+    count(*) as occurrences
+from
+    separated_string
+group by
+    individual_word

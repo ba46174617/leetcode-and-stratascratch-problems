@@ -1,0 +1,54 @@
+with
+    ordered_ratings as (
+        select
+            actor_name,
+            film_title,
+            release_date,
+            film_rating,
+            row_number() over (
+                partition by
+                    actor_name
+                order by
+                    release_date desc
+            ) as chronological_order
+        from
+            actor_rating_shift
+    ),
+    separated_ratings as (
+        select
+            actor_name,
+            release_date,
+            case
+                when chronological_order = 1 then null
+                else film_rating
+            end as previous_film_ratings,
+            case
+                when chronological_order = 1 then film_rating
+                else null
+            end as latest_film_rating
+        from
+            ordered_ratings
+    ),
+    averaged_ratings as (
+        select
+            actor_name,
+            avg(previous_film_ratings) as previous_average_film_ratings,
+            max(latest_film_rating) as latest_film_rating
+        from
+            separated_ratings
+        group by
+            actor_name
+    )
+select
+    actor_name,
+    case
+        when isnull (previous_average_film_ratings) then latest_film_rating
+        else previous_average_film_ratings
+    end as average_lifetime_rating,
+    latest_film_rating,
+    case
+        when isnull (previous_average_film_ratings) then 0
+        else latest_film_rating - previous_average_film_ratings
+    end as difference
+from
+    averaged_ratings

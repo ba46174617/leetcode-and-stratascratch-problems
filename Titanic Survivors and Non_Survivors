@@ -1,0 +1,44 @@
+with
+    a as (
+        select
+            survived,
+            pclass,
+            count(*) as no_passengers
+        from
+            titanic
+        group by
+            survived,
+            pclass
+        order by
+            survived
+    ),
+    b as (
+        select
+            survived,
+            max(
+                case
+                    when pclass = 1 then no_passengers
+                    else 0
+                end
+            ) as first_class,
+            max(
+                case
+                    when pclass = 2 then no_passengers
+                    else 0
+                end
+            ) as second_class,
+            max(
+                case
+                    when pclass = 3 then no_passengers
+                    else 0
+                end
+            ) as third_class
+        from
+            a
+        group by
+            survived
+    )
+select
+    *
+from
+    b

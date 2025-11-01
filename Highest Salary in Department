@@ -1,0 +1,26 @@
+with
+    salary_per_department as (
+        select
+            department,
+            first_name,
+            row_number() over (
+                partition by
+                    department
+                order by
+                    salary desc
+            ) as rn,
+            salary
+        from
+            employee
+        order by
+            department,
+            rn asc
+    )
+select
+    department,
+    first_name,
+    salary
+from
+    salary_per_department
+where
+    rn = 1

@@ -1,0 +1,50 @@
+with
+    a as (
+        select
+            user_id,
+            record_date
+        from
+            sf_events
+        order by
+            user_id,
+            record_date asc
+    ),
+    b as (
+        select
+            *,
+            lag (record_date, 1) over (
+                partition by
+                    user_id
+                order by
+                    record_date asc
+            ) as prev_record_date
+        from
+            a
+    ),
+    c as (
+        select
+            user_id,
+            record_date,
+            prev_record_date,
+            datediff (record_date, prev_record_date) as closest_difference
+        from
+            b
+    ),
+    d as (
+        select
+            *,
+            lag (closest_difference, 1) over (
+                partition by
+                    user_id
+                order by
+                    record_date asc
+            ) as consecutive_difference
+        from
+            c
+    )
+select
+    user_id
+from
+    d
+where
+    closest_difference + consecutive_difference = 2

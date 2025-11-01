@@ -1,0 +1,28 @@
+with
+    workerTitle as (
+        select
+            w.*,
+            t.worker_title as worker_title
+        from
+            worker as w
+            right join title as t on w.worker_id = t.worker_ref_id
+        order by
+            salary desc
+    ),
+    max_salary as (
+        select
+            max(salary) as max_sal
+        from
+            workerTitle
+    )
+select
+    worker_title
+from
+    workerTitle
+where
+    salary = (
+        select
+            max_sal
+        from
+            max_salary
+    )

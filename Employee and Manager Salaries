@@ -1,0 +1,39 @@
+with
+    employees as (
+        select
+            id as emp_id,
+            first_name as emp_name,
+            salary as emp_salary,
+            manager_id as man_id_fk
+        from
+            employee
+        order by
+            id asc
+    ),
+    managers as (
+        select
+            id as man_id_pk,
+            first_name as man_name,
+            salary as man_salary
+        from
+            employee
+        order by
+            id asc
+    ),
+    em as (
+        select
+            e.emp_name,
+            e.emp_salary,
+            m.man_name,
+            m.man_salary
+        from
+            employees as e
+            left join managers as m on e.man_id_fk = m.man_id_pk
+    )
+select
+    emp_name,
+    emp_salary
+from
+    em
+where
+    emp_salary > man_salary

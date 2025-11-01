@@ -1,0 +1,23 @@
+with
+    db_highest_salaries as (
+        select
+            max(
+                case
+                    when d.department = 'marketing' then e.salary
+                    else 0
+                end
+            ) as marketing_salary,
+            max(
+                case
+                    when d.department = 'engineering' then e.salary
+                    else 0
+                end
+            ) as engineering_salary
+        from
+            db_employee as e
+            join db_dept as d on e.department_id = d.id
+    )
+select
+    abs(marketing_salary - engineering_salary) as salary_diff
+from
+    db_highest_salaries

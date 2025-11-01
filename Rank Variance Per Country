@@ -1,0 +1,73 @@
+with
+    total_comments as (
+        select
+            user_id,
+            month (created_at) as m,
+            sum(number_of_comments) as number_of_comments
+        from
+            fb_comments_count
+        where
+            created_at between '2019-12-01' and '2020-01-31'
+        group by
+            user_id,
+            month (created_at)
+        order by
+            user_id,
+            month (created_at)
+    ),
+    pivot_total_comments as (
+        select
+            user_id,
+            sum(
+                case
+                    when m = 1 then number_of_comments
+                    else 0
+                end
+            ) as january_comments,
+            sum(
+                case
+                    when m = 12 then number_of_comments
+                    else 0
+                end
+            ) as december_comments
+        from
+            total_comments
+        group by
+            user_id
+    ),
+    plus_countries as (
+        select
+            -- p.user_id,
+            f.country,
+            sum(p.december_comments) as december_comments,
+            sum(p.january_comments) as january_comments
+        from
+            pivot_total_comments as p
+            left join fb_active_users as f on p.user_id = f.user_id
+        where
+            f.country <> ''
+        group by
+            f.country
+    ),
+    to_be_filtered as (
+        select
+            country,
+            december_comments,
+            dense_rank() over (
+                order by
+                    december_comments desc
+            ) as december_ranking,
+            january_comments,
+            dense_rank() over (
+                order by
+                    january_comments desc
+            ) as january_ranking
+        from
+            plus_countries
+    )
+select
+    country
+from
+    to_be_filtered
+where
+    january_ranking < december_ranking

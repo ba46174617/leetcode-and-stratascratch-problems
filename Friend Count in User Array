@@ -1,0 +1,13 @@
+from itertools import chain
+
+def count_friends(user_ids):
+    """
+    :type user_ids: List[List[int]]
+    :rtype: Dict[int, int]
+    """
+    fin_dict = {}
+    flat_user_ids = list(chain.from_iterable(user_ids))
+    dist_user_ids = sorted(list(set(flat_user_ids)))
+    for user_id in dist_user_ids:
+        fin_dict[str(user_id)] = flat_user_ids.count(user_id)
+    return(fin_dict)

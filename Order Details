@@ -1,0 +1,13 @@
+select
+    c.first_name as first_name,
+    o.order_date as order_date,
+    o.order_details as order_details,
+    o.total_order_cost as total_order_cost
+from
+    customers as c
+    right join orders as o on c.id = o.cust_id
+where
+    c.first_name = 'Jill'
+    or c.first_name = 'Eva'
+order by
+    o.cust_id asc

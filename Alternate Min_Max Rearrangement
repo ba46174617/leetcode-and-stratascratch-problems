@@ -1,0 +1,14 @@
+def modify_array(arr):
+    """ 
+    :type arr: List[int]
+    :rtype: List[int]
+    """
+    arr = sorted(arr)
+    fin_arr = []
+    while(len(arr) >= 2):
+        fin_arr.append(arr[0])
+        fin_arr.append(arr[-1])
+        arr = arr[1:len(arr)-1]
+    if(len(arr) == 1):
+        fin_arr.append(arr[0])
+    return(fin_arr)

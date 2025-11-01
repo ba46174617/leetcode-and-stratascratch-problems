@@ -1,0 +1,26 @@
+with
+    all_cool_votes as (
+        select
+            business_name,
+            review_text,
+            max(cool) as max_cool_votes
+        from
+            yelp_reviews
+        group by
+            business_name,
+            review_text
+        order by
+            max(cool) desc
+    )
+select
+    business_name,
+    review_text
+from
+    all_cool_votes
+where
+    max_cool_votes = (
+        select
+            max(max_cool_votes)
+        from
+            all_cool_votes
+    )

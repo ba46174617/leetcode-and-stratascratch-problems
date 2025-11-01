@@ -1,0 +1,27 @@
+with
+    temp_table as (
+        select
+            row_number() over (
+                partition by
+                    id
+                order by
+                    salary desc
+            ) as rn,
+            id,
+            first_name,
+            last_name,
+            salary,
+            department_id
+        from
+            ms_employee_salary
+    )
+select
+    id,
+    first_name,
+    last_name,
+    salary,
+    department_id
+from
+    temp_table
+where
+    rn = 1

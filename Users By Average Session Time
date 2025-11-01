@@ -1,0 +1,64 @@
+with
+    load_exit_logs as (
+        select
+            user_id,
+            concat (
+                extract(
+                    year
+                    from
+                        timestamp
+                ),
+                extract(
+                    month
+                    from
+                        timestamp
+                ),
+                extract(
+                    day
+                    from
+                        timestamp
+                )
+            ) as ymd_date,
+            max(
+                case
+                    when action = 'page_load' then timestamp
+                end
+            ) as load_time,
+            min(
+                case
+                    when action = 'page_exit' then timestamp
+                end
+            ) as exit_time,
+            action
+        from
+            facebook_web_log
+        where
+            action = 'page_load'
+            or action = 'page_exit'
+        group by
+            ymd_date,
+            user_id
+    ),
+    time_diffs as (
+        select
+            user_id,
+            ymd_date,
+            timestampdiff (second, load_time, exit_time) as session_duration
+        from
+            load_exit_logs
+    ),
+    non_agg as (
+        select
+            *
+        from
+            time_diffs
+        where
+            session_duration <> ''
+    )
+select
+    user_id,
+    avg(session_duration) as avg_session_duration
+from
+    non_agg
+group by
+    user_id

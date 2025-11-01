@@ -1,0 +1,19 @@
+with
+    ordered_emails as (
+        select
+            from_user,
+            count(*) as no_emails_sent
+        from
+            google_gmail_emails
+        group by
+            from_user
+    )
+select
+    *,
+    row_number() over (
+        order by
+            no_emails_sent desc,
+            from_user asc
+    ) as rn
+from
+    ordered_emails
