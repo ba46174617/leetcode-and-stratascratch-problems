@@ -1,0 +1,36 @@
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def isValidBST(self, root: Optional[TreeNode]) -> bool:
+        def isValidLevel(newroot, l, r):
+            if newroot is None:
+                return(True)
+            elif not (newroot.val < r and newroot.val > l):
+                return(False)
+            return(isValidLevel(newroot.left, l, newroot.val) and isValidLevel(newroot.right, newroot.val, r))
+        return(isValidLevel(root, float('-inf'), float('inf')))
+
+# Feedback from Analysis
+'''
+Current:
+Depth-First Search
+/
+Recursion
+Suggested:
+Depth-First Search
+/
+Recursion
+Key Idea:
+Validating BST properties using recursive range constraints for each node.
+
+Readability:
+Good
+Structure:
+Excellent
+Suggestions:
+Remove unnecessary parentheses around return values to improve readability.
+'''

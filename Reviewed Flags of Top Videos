@@ -1,0 +1,53 @@
+with
+    user_flag_count as (
+        select
+            video_id,
+            count(flag_id) as count_flags
+        from
+            user_flags
+        group by
+            video_id
+    ),
+    ranked_videos as (
+        select
+            *,
+            dense_rank() over (
+                order by
+                    count_flags desc
+            ) as rnk
+        from
+            user_flag_count
+    ),
+    top_videos as (
+        select
+            video_id
+        from
+            ranked_videos
+        where
+            rnk = 1
+    ),
+    top_video_flag_ids as (
+        select
+            uf.video_id as video_id,
+            uf.flag_id as flag_id,
+            fr.reviewed_by_yt as reviewed_by_yt
+        from
+            user_flags as uf
+            left join flag_review as fr on uf.flag_id = fr.flag_id
+        where
+            uf.video_id in (
+                select
+                    video_id
+                from
+                    top_videos
+            )
+            and uf.flag_id is not null
+            and fr.reviewed_by_yt = 1
+    )
+select
+    video_id,
+    count(flag_id)
+from
+    top_video_flag_ids
+group by
+    video_id

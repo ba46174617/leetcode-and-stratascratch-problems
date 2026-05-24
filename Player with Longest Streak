@@ -1,0 +1,62 @@
+with
+    a as (
+        select
+            *,
+            row_number() over (
+                partition by
+                    player_id
+                order by
+                    match_date
+            ) as rn
+        from
+            players_results
+    ),
+    b as (
+        select
+            *,
+            rn - row_number() over (
+                partition by
+                    player_id
+                order by
+                    match_date
+            ) as rn_diff -- turns out in this case the where clause is executed before the new row_number is assigned
+        from
+            a
+        where
+            match_result = 'W'
+    ),
+    c as (
+        select
+            player_id,
+            count(*) as winning_streak
+        from
+            b
+        group by
+            player_id,
+            rn_diff
+    ),
+    d as (
+        select
+            *,
+            dense_rank() over (
+                order by
+                    winning_streak desc
+            ) as rnk
+        from
+            c
+    )
+select
+    player_id,
+    winning_streak
+from
+    d
+where
+    rnk = 1
+    -- the following is wrong/incomplete but I'll keep it so I remember how to use the group_concat function
+    -- with a as (
+    -- select
+    -- player_id,
+    -- group_concat(match_result order by player_id, match_date separator '') as ws_and_ls
+    -- from players_results group by player_id
+    -- )
+    -- select * from a

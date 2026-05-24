@@ -1,0 +1,35 @@
+class Solution:
+    def longestCommonPrefix(self, strs: List[str]) -> str:
+        if len(strs) == 1: # gets rid of arrays of length 1
+            return(strs[0])
+        if len(set(strs)) == 1: # gets rid of arrays with the same element over and over again
+            return(strs[0])
+        if '' in strs: # contains at least one empty string
+            return('')
+        i = 1
+        first_char_test_arr = list(set([string[:i] for string in strs]))
+        if len(first_char_test_arr) > 1: # no common first letter
+            return('')
+        # the rest of the code is for arrays where the common prefix is at least one character long, so len(first_char_test_arr) is 1
+        else:
+            i += 1
+            while True:
+                temp_arr = list(set([string[:i] for string in strs]))
+                if len(temp_arr) == 1:
+                    i += 1
+                else:
+                    return(temp_arr[0][:(i - 1)])
+
+# feedback from leetcode analysis
+'''
+Current:
+Brute-Force Search
+/
+String Matching
+Suggested:
+Two Pointers
+/
+String Matching
+Key Idea:
+Find the longest common prefix by comparing characters across strings efficiently.
+'''

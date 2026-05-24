@@ -1,0 +1,39 @@
+class Solution:
+    def isValid(self, s: str) -> bool:
+        stack = []
+        reverse_stack = []
+        bracket_pairs = {
+            '(': ')',
+            '[': ']',
+            '{': '}'
+        }
+
+        for bracket in s:
+            if bracket in bracket_pairs.keys():
+                stack.append(bracket)
+            elif bracket in bracket_pairs.values():
+                if len(stack) == 0:
+                    return(False)
+                elif bracket == bracket_pairs[stack[(len(stack) - 1):][0]]:
+                    stack = stack[:-1]
+                else:
+                    return(False)
+
+        return(stack == [])
+
+# feedback from analysis
+'''
+Congratulations! You passed on this attempt. Your logic is sound, and you are making great progress with stack-based problems!
+approach
+Approach
+Current:
+Stack
+/
+Hash Table
+Suggested:
+Stack
+/
+Hash Table
+Key Idea:
+Using a stack to track open brackets and verify matching closing brackets in correct order.
+'''

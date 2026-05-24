@@ -1,0 +1,69 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -> Optional[ListNode]:
+
+        if list1 == None and list2 == None:
+            return(None)
+
+        elif list2 == None:
+            return(list1)
+
+        elif list1 == None:
+            return(list2)
+        
+        else:
+            pointer1 = list1
+            pointer2 = list2
+            
+            # first value of node3, i.e., what will be returned
+            if pointer1.val < pointer2.val:
+                node3 = ListNode(pointer1.val)
+                pointer1 = pointer1.next
+            else:
+                node3 = ListNode(pointer2.val)
+                pointer2 = pointer2.next
+                
+            traverse3 = node3
+            
+            while pointer1 != None or pointer2 != None:
+                
+                if pointer1 != None and pointer2 != None and pointer1.val < pointer2.val:
+                    traverse3.next = ListNode(pointer1.val)
+                    pointer1 = pointer1.next
+                    traverse3 = traverse3.next
+                    
+                elif pointer1 != None and pointer2 != None and pointer1.val >= pointer2.val:
+                    traverse3.next = ListNode(pointer2.val)
+                    pointer2 = pointer2.next
+                    traverse3 = traverse3.next
+                    
+                elif pointer1 == None and pointer2 != None:
+                    traverse3.next = pointer2
+                    break
+                    
+                elif pointer1 != None and pointer2 == None:
+                    traverse3.next = pointer1
+                    break
+                
+            return(node3)
+
+# feedback from leetcode
+'''
+Congratulations! You passed on your first attempt. You're in great form today!
+approach
+Approach
+Current:
+Linked List
+/
+Two Pointers
+Suggested:
+Linked List
+/
+Two Pointers
+Key Idea:
+Merging two sorted linked lists using a two-pointer technique to maintain order.
+'''

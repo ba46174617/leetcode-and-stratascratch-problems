@@ -1,0 +1,61 @@
+with
+    ordered_table as (
+        select
+            user_id,
+            min(date_visited) as date_visited
+        from
+            user_streaks
+        where
+            date_visited <= '2022-08-10'
+        group by
+            user_id,
+            date_visited
+        order by
+            user_id,
+            date_visited
+    ),
+    grouping_dates as (
+        select
+            *,
+            row_number() over (
+                partition by
+                    user_id
+                order by
+                    date_visited
+            ) as subtrahend,
+            date_visited - row_number() over (
+                partition by
+                    user_id
+                order by
+                    date_visited
+            ) as grouping_dates_col -- date_visited - subtrahend
+        from
+            ordered_table
+    ),
+    streak_lengths as (
+        select
+            user_id,
+            count(user_id) as streak_length
+        from
+            grouping_dates
+        group by
+            user_id,
+            grouping_dates_col
+    ),
+    ranked_users as (
+        select
+            *,
+            dense_rank() over (
+                order by
+                    streak_length desc
+            ) as rnk
+        from
+            streak_lengths
+    )
+select
+    user_id,
+    streak_length
+from
+    ranked_users
+where
+    rnk <= 3

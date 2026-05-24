@@ -1,0 +1,55 @@
+with
+    ordered_purchases as (
+        select
+            id,
+            created_at,
+            extract(
+                year_month
+                from
+                    created_at
+            ) as yearmonth,
+            substring(created_at, 1, 7) as yearmonth_correct_format,
+            value,
+            purchase_id
+        from
+            sf_transactions
+        order by
+            created_at asc
+    ),
+    aggregated_purchases as (
+        select
+            created_at,
+            yearmonth_correct_format,
+            sum(value) as total_monthly_value
+        from
+            ordered_purchases
+        group by
+            yearmonth_correct_format
+    ),
+    shifted_purchases as (
+        select
+            *,
+            lag (total_monthly_value, 1, 0) over (
+                order by
+                    created_at
+            ) as last_months_value
+        from
+            aggregated_purchases
+    ),
+    perc_diffs as (
+        select
+            *,
+            case
+                when last_months_value = 0 then null
+                else (
+                    (total_monthly_value - last_months_value) / last_months_value
+                ) * 100
+            end as revenue_diff_pct
+        from
+            shifted_purchases
+    )
+select
+    yearmonth_correct_format,
+    revenue_diff_pct
+from
+    perc_diffs

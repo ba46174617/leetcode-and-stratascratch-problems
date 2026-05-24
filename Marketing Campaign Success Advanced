@@ -1,0 +1,73 @@
+with
+    ranked_days as (
+        select
+            user_id,
+            created_at,
+            dense_rank() over (
+                partition by
+                    user_id
+                order by
+                    created_at
+            ) as day_rnk,
+            product_id,
+            quantity,
+            price
+        from
+            marketing_campaign
+    ), -- don't include day_rnk = 1 from this table
+    first_day_purchases as (
+        select
+            user_id,
+            group_concat (
+                product_id
+                order by
+                    created_at asc separator ', '
+            ) as users_product_ids_first_day
+        from
+            ranked_days
+        where
+            day_rnk = 1
+        group by
+            user_id
+    ), -- all product ids the remaining purchases cannot contain
+    one_first_days_stripped as (
+        select
+            *
+        from
+            ranked_days
+        where
+            day_rnk <> 1
+    ),
+    two_join_all_first_day_purchases as (
+        select
+            o.user_id as user_id,
+            o.created_at as created_at,
+            o.day_rnk as day_rnk,
+            o.product_id as product_id,
+            t.users_product_ids_first_day as product_id_list
+        from
+            one_first_days_stripped as o
+            left join first_day_purchases as t on o.user_id = t.user_id
+    ), -- first days have already been stripped, now I just need to get rid of users who purchased the same product ids as the first day at a later date
+    three_strip_same_purchases as (
+        select
+            *,
+            case
+                when product_id_list like concat ('%', product_id, '%') then true
+                else false
+            end as product_id_in_first_day
+        from
+            two_join_all_first_day_purchases
+    ),
+    four_strip_same_later_purchases as (
+        select
+            *
+        from
+            three_strip_same_purchases
+        where
+            product_id_in_first_day = 0
+    )
+select
+    count(distinct user_id)
+from
+    four_strip_same_later_purchases

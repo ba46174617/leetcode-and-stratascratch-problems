@@ -1,0 +1,61 @@
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+def rotate_once(head):
+    pointer1 = head
+    pointer2 = pointer1.next
+    
+    while True:
+        if pointer2.next is not None:
+            pointer1 = pointer1.next
+            pointer2 = pointer2.next
+        if pointer2.next is None or pointer1.next is None:
+            break
+        
+    pointer1.next = None
+    pointer2.next = head
+    return(pointer2)
+
+class Solution:
+    def rotateRight(self, head: Optional[ListNode], k: int) -> Optional[ListNode]:
+        if head is None:
+            return(None)
+        elif head.next is None:
+            return(head)
+        else:
+            no_nodes = 1
+            firstNode = head
+            while firstNode.next is not None:
+                firstNode = firstNode.next
+                no_nodes += 1
+            k = int(k % no_nodes)
+            pointer = head
+            while k != 0:
+                pointer = rotate_once(pointer)
+                k -= 1
+            return(pointer)
+
+# Feedback from analysis
+'''
+Current:
+Linked List
+/
+Simulation
+/
+Brute-Force Search
+Suggested:
+Linked List
+/
+Two Pointers
+Key Idea:
+Optimizing linked list rotation by calculating the effective shift and reconnecting nodes directly.
+
+Readability:
+Good
+Structure:
+Good
+Suggestions:
+Remove unnecessary parentheses around return values and simplify the loop condition logic.
+'''

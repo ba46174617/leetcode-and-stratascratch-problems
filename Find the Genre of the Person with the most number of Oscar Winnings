@@ -1,0 +1,24 @@
+with
+    all_total_wins as (
+        select
+            nominee,
+            sum(winner) as total_wins
+        from
+            oscar_nominees
+        group by
+            nominee
+        order by
+            sum(winner) desc
+    )
+select
+    -- atw.nominee,
+    -- atw.total_wins,
+    ni.top_genre
+from
+    all_total_wins as atw
+    left join nominee_information as ni on atw.nominee = ni.name
+order by
+    atw.total_wins desc,
+    atw.nominee
+limit
+    1

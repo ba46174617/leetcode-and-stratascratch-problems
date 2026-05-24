@@ -1,0 +1,70 @@
+with
+    ordered_table as (
+        select
+            *
+        from
+            cust_tracking
+        order by
+            cust_id,
+            timestamp asc
+    ),
+    ones as (
+        select
+            *,
+            row_number() over (
+                partition by
+                    cust_id
+                order by
+                    timestamp
+            ) as rnk1
+        from
+            ordered_table
+        where
+            state = 1
+    ),
+    zeroes as (
+        select
+            *,
+            row_number() over (
+                partition by
+                    cust_id
+                order by
+                    timestamp
+            ) as rnk0
+        from
+            ordered_table
+        where
+            state = 0
+    ),
+    ones_and_zeroes as (
+        select
+            o.cust_id as cust_id,
+            -- o.state as on_state,
+            o.timestamp as start_timestamp,
+            -- z.state as off_state,
+            z.timestamp as end_timestamp
+        from
+            ones as o
+            join zeroes as z on o.cust_id = z.cust_id
+            and o.rnk1 = z.rnk0
+    ),
+    first_differences as (
+        select
+            *,
+            timestampdiff (minute, start_timestamp, end_timestamp) / 60 as ind_hour_diff
+        from
+            ones_and_zeroes
+    ),
+    aggregated_differences as (
+        select
+            cust_id,
+            sum(ind_hour_diff) as hour_diff
+        from
+            first_differences
+        group by
+            cust_id
+    )
+select
+    *
+from
+    aggregated_differences

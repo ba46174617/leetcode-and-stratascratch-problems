@@ -1,0 +1,37 @@
+class Solution:
+    def removeDuplicates(self, nums: List[int]) -> int:
+        index = 1
+        current_number = nums[0]
+        for i in range(1, len(nums)):
+            current_pointer = nums[i]
+            if current_pointer > current_number:
+                current_number = current_pointer
+                nums.insert(index, current_number)
+                nums.pop(i)
+                index += 1
+        for j in range(len(nums) - 1, index - 1, -1):
+            nums.pop(j)
+        # return(nums)
+
+# Analysis feedback
+'''
+approach
+Approach
+efficiency
+Efficiency
+codeStyle
+Code Style
+Congratulations! You passed on your first attempt. You're in great form today!
+approach
+Approach
+Current:
+Array
+/
+Simulation
+Suggested:
+Two Pointers
+/
+Array
+Key Idea:
+Remove duplicates in-place from a sorted array using efficient pointer manipulation.
+'''
